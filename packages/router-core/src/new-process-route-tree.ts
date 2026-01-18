@@ -352,7 +352,6 @@ function parseSegments<TRouteLike extends RouteLike>(
 
     // create pathless node
     if (
-      skipOnParamError &&
       route.children &&
       !route.isRoot &&
       route.id &&
@@ -368,6 +367,10 @@ function parseSegments<TRouteLike extends RouteLike>(
       node.pathless ??= []
       node.pathless.push(pathlessNode)
       node = pathlessNode
+
+      // pathless nodes are also routes
+      node.route = route as unknown as TRouteLike
+      node.fullPath = route.fullPath ?? route.from
     }
 
     const isLeaf = (route.path || !route.children) && !route.isRoot
@@ -548,16 +551,16 @@ function createDynamicNode<T extends RouteLike>(
 
 type StaticSegmentNode<T extends RouteLike> = SegmentNode<T> & {
   kind:
-    | typeof SEGMENT_TYPE_PATHNAME
-    | typeof SEGMENT_TYPE_PATHLESS
-    | typeof SEGMENT_TYPE_INDEX
+  | typeof SEGMENT_TYPE_PATHNAME
+  | typeof SEGMENT_TYPE_PATHLESS
+  | typeof SEGMENT_TYPE_INDEX
 }
 
 type DynamicSegmentNode<T extends RouteLike> = SegmentNode<T> & {
   kind:
-    | typeof SEGMENT_TYPE_PARAM
-    | typeof SEGMENT_TYPE_WILDCARD
-    | typeof SEGMENT_TYPE_OPTIONAL_PARAM
+  | typeof SEGMENT_TYPE_PARAM
+  | typeof SEGMENT_TYPE_WILDCARD
+  | typeof SEGMENT_TYPE_OPTIONAL_PARAM
   prefix?: string
   suffix?: string
   caseSensitive: boolean
@@ -852,9 +855,9 @@ function extractParams<T extends RouteLike>(
     rawParams?: Record<string, string>
   },
 ): [
-  rawParams: Record<string, string>,
-  state: { part: number; node: number; path: number },
-] {
+    rawParams: Record<string, string>,
+    state: { part: number; node: number; path: number },
+  ] {
   const list = buildBranch(leaf.node)
   let nodeParts: Array<string> | null = null
   const rawParams: Record<string, string> = {}
