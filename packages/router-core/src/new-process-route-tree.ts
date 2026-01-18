@@ -367,9 +367,7 @@ function parseSegments<TRouteLike extends RouteLike>(
       node.pathless ??= []
       node.pathless.push(pathlessNode)
       node = pathlessNode
-
-      // pathless nodes are also routes
-      node.route = route as unknown as TRouteLike
+      node.route = route
       node.fullPath = route.fullPath ?? route.from
     }
 
